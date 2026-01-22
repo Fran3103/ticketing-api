@@ -1,13 +1,13 @@
 package com.fran.ticketing_api.service.impl;
 
 import com.fran.ticketing_api.dto.CreateTicketRequest;
+import com.fran.ticketing_api.dto.TicketCommentResponse;
+import com.fran.ticketing_api.dto.TicketDetailResponse;
 import com.fran.ticketing_api.dto.UpdateTicketRequest;
-import com.fran.ticketing_api.entitie.Priority;
-import com.fran.ticketing_api.entitie.Status;
-import com.fran.ticketing_api.entitie.Ticket;
-import com.fran.ticketing_api.entitie.User;
+import com.fran.ticketing_api.entitie.*;
 import com.fran.ticketing_api.exception.BusinessException;
 import com.fran.ticketing_api.exception.ResourceNotFoundException;
+import com.fran.ticketing_api.repository.ITicketCommentRepository;
 import com.fran.ticketing_api.repository.ITicketRepository;
 import com.fran.ticketing_api.repository.IUserRepository;
 import com.fran.ticketing_api.service.ITicketService;
@@ -17,6 +17,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 
 import java.util.List;
@@ -32,6 +33,9 @@ public class TicketServiceImpl implements ITicketService {
 
     @Autowired
     private IUserRepository userRepo;
+
+    @Autowired
+    private ITicketCommentRepository commentRepo;
 
 
     @Override
@@ -132,5 +136,42 @@ public class TicketServiceImpl implements ITicketService {
         return ticketRepo.findAll(spec, pageable);
     }
 
+    @Transactional(readOnly = true)
+    public TicketDetailResponse findDetail(Long id) {
+        Ticket ticket = ticketRepo.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Ticket not found"));
 
+        List<TicketCommentResponse> comments = commentRepo
+                .findByTicket_IdOrderByCreatedAtAsc(id)
+                .stream()
+                .map(this::toCommentResponse)
+                .toList();
+
+        Long assignedId = ticket.getAssignee() != null ? ticket.getAssignee().getId() : null;
+
+        return new TicketDetailResponse(
+                ticket.getId(),
+                ticket.getTitle(),
+                ticket.getDescription(),
+                ticket.getStatus(),
+                ticket.getPriority(),
+                assignedId,
+                ticket.getCreatedAt(),
+                ticket.getUpdateAt(),
+                comments
+        );
+    }
+
+
+    private TicketCommentResponse toCommentResponse(TicketComment c) {
+        Long authorId = c.getAuthor() != null ? c.getAuthor().getId() : null;
+        Long ticketId = c.getTicket() != null ? c.getTicket().getId() : null;
+        return new TicketCommentResponse(
+                c.getId(),
+                authorId,
+                ticketId,
+                c.getComment(),
+                c.getCreatedAt()
+        );
+    }
 }

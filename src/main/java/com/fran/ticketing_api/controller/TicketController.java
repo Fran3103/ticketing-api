@@ -4,6 +4,8 @@ import com.fran.ticketing_api.dto.*;
 import com.fran.ticketing_api.entitie.Priority;
 import com.fran.ticketing_api.entitie.Status;
 import com.fran.ticketing_api.entitie.Ticket;
+import com.fran.ticketing_api.entitie.TicketComment;
+import com.fran.ticketing_api.service.ITicketCommentService;
 import com.fran.ticketing_api.service.ITicketService;
 import com.fran.ticketing_api.util.PageResponseMapper;
 import jakarta.validation.Valid;
@@ -15,6 +17,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import java.net.URI;
+import java.util.List;
 
 @RestController
 @RequestMapping("/api/tickets")
@@ -23,6 +26,9 @@ public class TicketController {
 
     @Autowired
     private ITicketService ticketService;
+
+    @Autowired
+    private ITicketCommentService commentService;
 
 
     private TicketResponse toResponse (Ticket ticket) {
@@ -54,9 +60,9 @@ public class TicketController {
 
 
     @GetMapping("/{id}")
-    public ResponseEntity<TicketResponse> findTicketById (@PathVariable Long id) {
+    public ResponseEntity<TicketDetailResponse> findTicketById (@PathVariable Long id) {
 
-      return ResponseEntity.ok(toResponse(ticketService.findById(id)));
+        return ResponseEntity.ok(ticketService.findDetail(id));
 
     }
 
