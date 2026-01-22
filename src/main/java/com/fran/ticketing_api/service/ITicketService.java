@@ -1,6 +1,8 @@
 package com.fran.ticketing_api.service;
 
 import com.fran.ticketing_api.dto.CreateTicketRequest;
+import com.fran.ticketing_api.dto.TicketDetailResponse;
+import com.fran.ticketing_api.dto.TicketResponse;
 import com.fran.ticketing_api.dto.UpdateTicketRequest;
 import com.fran.ticketing_api.entitie.Priority;
 import com.fran.ticketing_api.entitie.Status;
@@ -24,4 +26,5 @@ public interface ITicketService {
 
     Page<Ticket> search(Long assigneeId, Priority priority, Status status,String q, Pageable pageable);
 
+    TicketDetailResponse findDetail(Long id);
 }
