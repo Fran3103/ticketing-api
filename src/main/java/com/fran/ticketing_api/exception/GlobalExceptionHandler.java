@@ -8,6 +8,7 @@ import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 
 import java.time.Instant;
 import java.util.List;
@@ -67,8 +68,49 @@ public class GlobalExceptionHandler {
         ));
     }
 
+
+    @ExceptionHandler(BusinessException.class)
+    public ResponseEntity<ApiError> handleBusiness(BusinessException ex, HttpServletRequest req) {
+        ApiError error = new ApiError(
+                Instant.now(),
+                400,
+                "Bad Request",
+                ex.getMessage(),
+                req.getRequestURI(),
+                List.of()
+
+        );
+
+        return ResponseEntity.badRequest().body(error);
+    }
+
     private String messageOrDefault(FieldError fe) {
         return fe.getDefaultMessage() != null ? fe.getDefaultMessage() : "Invalid value";
     }
+
+    @ExceptionHandler(MethodArgumentTypeMismatchException.class)
+    public ResponseEntity<ApiError> handleTypeMismatch(MethodArgumentTypeMismatchException ex,
+                                                       HttpServletRequest req) {
+
+        String message = "Invalid value '" + ex.getValue() + "' for parameter '" + ex.getName() + "'.";
+
+        Class<?> type = ex.getRequiredType();
+        if (type != null && type.isEnum()) {
+            Object[] allowed = type.getEnumConstants();
+            message += " Allowed values: " + java.util.Arrays.toString(allowed);
+        }
+
+        ApiError error = new ApiError(
+                Instant.now(),
+                400,
+                "Bad Request",
+                message,
+                req.getRequestURI(),
+                List.of()
+        );
+
+        return ResponseEntity.badRequest().body(error);
+    }
+
 
 }
