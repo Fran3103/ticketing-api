@@ -19,6 +19,12 @@ import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 import java.net.URI;
 import java.util.List;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+
 @RestController
 @RequestMapping("/api/tickets")
 public class TicketController {
@@ -44,6 +50,8 @@ public class TicketController {
         );
     }
 
+    @Operation(summary = "Crear ticket", description = "Crea un nuevo ticket")
+    @ApiResponse(responseCode = "201", description = "Ticket creado", content = @Content(mediaType = "application/json", schema = @Schema(implementation = TicketResponse.class)))
     @PostMapping()
     public ResponseEntity<TicketResponse> createTicket(@Valid  @RequestBody CreateTicketRequest req) {
         Ticket createdTicket = ticketService.create(req);
@@ -59,6 +67,8 @@ public class TicketController {
     }
 
 
+    @Operation(summary = "Obtener ticket por id", description = "Devuelve el detalle de un ticket por su id")
+    @ApiResponse(responseCode = "200", description = "Ticket encontrado", content = @Content(mediaType = "application/json", schema = @Schema(implementation = TicketDetailResponse.class)))
     @GetMapping("/{id}")
     public ResponseEntity<TicketDetailResponse> findTicketById (@PathVariable Long id) {
 
@@ -67,6 +77,8 @@ public class TicketController {
     }
 
 
+    @Operation(summary = "Actualizar ticket", description = "Actualiza campos de un ticket")
+    @ApiResponse(responseCode = "200", description = "Ticket actualizado", content = @Content(mediaType = "application/json", schema = @Schema(implementation = TicketResponse.class)))
     @PatchMapping("/{id}")
     public ResponseEntity<TicketResponse> updateTicket (@PathVariable Long id, @RequestBody UpdateTicketRequest req) {
 
@@ -75,6 +87,8 @@ public class TicketController {
 
     }
 
+    @Operation(summary = "Eliminar ticket", description = "Elimina un ticket por id")
+    @ApiResponse(responseCode = "200", description = "Ticket eliminado", content = @Content(mediaType = "application/json", schema = @Schema(implementation = DeleteResponse.class)))
     @DeleteMapping("/{id}")
     public ResponseEntity<DeleteResponse> deleteTicket (@PathVariable Long id) {
 
@@ -83,6 +97,8 @@ public class TicketController {
 
         }
 
+    @Operation(summary = "Actualizar estado del ticket", description = "Actualiza solo el estado del ticket")
+    @ApiResponse(responseCode = "200", description = "Estado actualizado", content = @Content(mediaType = "application/json", schema = @Schema(implementation = TicketResponse.class)))
     @PatchMapping("/{id}/status")
     public ResponseEntity<TicketResponse> updateTicketStatus (@PathVariable Long id, @RequestParam Status status) {
 
@@ -91,6 +107,8 @@ public class TicketController {
 
     }
 
+    @Operation(summary = "Listar tickets", description = "Listar tickets con filtros y paginación")
+    @ApiResponse(responseCode = "200", description = "Listado paginado", content = @Content(mediaType = "application/json"))
     @GetMapping()
     public ResponseEntity<PageResponse<TicketResponse>> findAll(
            @RequestParam(required = false) Long assigneeId,

@@ -16,7 +16,7 @@ import java.util.List;
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 
-    record ApiError(
+    public record ApiError(
             Instant timestamp,
             int status,
             String error,
@@ -25,7 +25,7 @@ public class GlobalExceptionHandler {
             List<FieldViolation> violation
     ){}
 
-    record FieldViolation(String field, String message){}
+    public record FieldViolation(String field, String message){}
 
     @ExceptionHandler(ResourceNotFoundException.class)
     public ResponseEntity<ApiError> notFound(ResourceNotFoundException ex, HttpServletRequest request) {

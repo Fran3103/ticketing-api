@@ -34,5 +34,10 @@ public class User {
         if(createdAt == null ) createdAt = Instant.now();
     }
 
+    @Column(name="password_hash", nullable=false, length=255)
+    private String passwordHash;
+
+    @Column(nullable=false)
+    private boolean enabled = true;
 
 }

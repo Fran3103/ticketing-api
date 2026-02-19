@@ -7,6 +7,7 @@ import com.fran.ticketing_api.exception.ResourceNotFoundException;
 import com.fran.ticketing_api.repository.IUserRepository;
 import com.fran.ticketing_api.service.IUserService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -17,6 +18,9 @@ public class UserServiceImpl implements IUserService {
 
     @Autowired
     private IUserRepository userRepo;
+
+    @Autowired
+    private PasswordEncoder passwordEncoder;
 
 
     @Override
@@ -50,8 +54,10 @@ public class UserServiceImpl implements IUserService {
        User user = new User();
 
        user.setName(req.name());
-       user.setEmail(req.email());
+       user.setEmail(req.email().toLowerCase());
        user.setRole(req.role());
+       user.setPasswordHash(passwordEncoder.encode(req.password()));
+       user.setEnabled(true);
        return userRepo.save(user);
     }
 
